@@ -5,8 +5,8 @@ import (
 )
 
 func main() {
-	arr := []int{1, 2, 2, 3, 4, 5, 5}
-	x := reverseArray(arr)
+	arr := []int{1, 2, 3, 4, 5}
+	x := rotateArrayReversal(arr, 2)
 
 	fmt.Println(x)
 }
@@ -173,6 +173,137 @@ func reverseArray(arr []int) []int {
 	return arr
 }
 
-func rotateArray(arr []int, d int) {
+// https://www.geeksforgeeks.org/complete-guide-on-array-rotations/
+// We consider only right rotate here, left is just similar
+// Approach 1: Rotate one by one
+// We keep two loops, outer loop runs over the number of times we need to rotate
+// Inner loop rotates by one, by keeping last element in a temp variable
+// and shifting all elements to the left and replacing the first with temp.
+// We do a d = (d % n), because for eg. If the length of the array is 5, then rotate by 6
+// is the same as rotate by 1 eventually.
+// Time complexity: O(N*d), d is the number of rotations
+// Space complexity: O(1)
+func rotateArrayOneByOne(arr []int, d int) []int {
+	n := len(arr)
+	if n == 0 {
+		return arr
+	}
 
+	d = d % n
+	for r := 0; r < d; r++ {
+		temp := arr[n-1]
+
+		for i := n - 1; i >= 1; i-- {
+			arr[i] = arr[i-1]
+		}
+		arr[0] = temp
+	}
+
+	return arr
+}
+
+// Approach 2: Using a temp array
+// In this we use a temp array to store values, we first loop from the rotation point to the end of the
+// array and copy elements to the start of the temp array. In the second loop we copy the remaining
+// elements to the temp array.
+// Time complexity: O(N)
+// Space complexity: O(N)
+func rotateArrayUsingTempArray(arr []int, d int) []int {
+	n := len(arr)
+	if n == 0 {
+		return arr
+	}
+	d = d % n
+
+	temp := make([]int, n)
+
+	// Copy elements from (n-d) to n
+	for i := 0; i < d; i++ {
+		temp[i] = arr[n-d+i]
+	}
+
+	// Copy elements from 0 to (n-d)
+	for i := 0; i < (n - d); i++ {
+		temp[i+d] = arr[i]
+	}
+
+	// Copy elements from temp to original arr
+	for i := 0; i < n; i++ {
+		arr[i] = temp[i]
+	}
+
+	return arr
+}
+
+// Approach 3: Using Juggling algorithm
+// We use the GCD of the length of array and number of rotations to get the independent cycles
+// Time complexity: O(N)
+// Space complexity: O(1)
+func rotateArrayJugglingAlgorithm(arr []int, d int) []int {
+	n := len(arr)
+	if n == 0 {
+		return arr
+	}
+	d = d % n
+
+	// GCD gives the number of non-overlaping cycle to move the elements
+	cycles := gcd(n, d)
+
+	// Go over the cycles and move elements untill we reach back to the start
+	for i := 0; i < cycles; i++ {
+		currIdx := i
+		currEle := arr[currIdx]
+
+		for {
+			nextIdx := (currIdx + d) % n
+			nextEle := arr[nextIdx]
+
+			arr[nextIdx] = currEle
+			currEle = nextEle
+			currIdx = nextIdx
+
+			if currIdx == i {
+				break
+			}
+		}
+	}
+
+	return arr
+}
+
+// Using the Eudceldian algorithm to find the GCD
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+
+	return gcd(b, a%b)
+}
+
+// Approach 4: Reversal Algorithm for array rotation
+// We first reverse elements from 0 to d-n
+// Then we reserver elemets from d-n to n
+// Then we reverse the entire array
+// Time complexity: O(N)
+// Space complexity: O(1)
+func rotateArrayReversal(arr []int, d int) []int {
+	n := len(arr)
+	if n == 0 {
+		return arr
+	}
+	d = d % n
+
+	reverse(arr, 0, n-d-1)
+	reverse(arr, n-d, n-1)
+	reverse(arr, 0, n-1)
+
+	return arr
+}
+
+func reverse(arr []int, start int, end int) {
+	for start < end {
+		arr[start], arr[end] = arr[end], arr[start]
+		start++
+		end--
+	}
 }
