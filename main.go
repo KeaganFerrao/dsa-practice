@@ -7,11 +7,10 @@ import (
 )
 
 func main() {
-	arr1 := []int{5, 10, 10, 15, 30}
-	arr2 := []int{5, 10, 10, 15, 30}
-	x := sortedArrayIntersection(arr1, arr2)
+	arr := []int{1, 6, 3, 5, 4, 8, 1, 5}
+	quickSort(arr, 0, len(arr)-1)
 
-	fmt.Println(x)
+	fmt.Println(arr)
 }
 
 // https://www.geeksforgeeks.org/find-second-largest-element-array
@@ -1722,4 +1721,138 @@ func sortedArrayIntersection(arr1 []int, arr2 []int) []int {
 	}
 
 	return result
+}
+
+func insertionSort(arr []int) []int {
+	for i := 1; i < len(arr); i++ {
+		key := arr[i]
+		j := i - 1
+
+		for j >= 0 && arr[j] > key {
+			arr[j+1] = arr[j]
+			j--
+		}
+
+		arr[j+1] = key
+	}
+
+	return arr
+}
+
+func selectionSort(arr []int) []int {
+	for i := 0; i < len(arr); i++ {
+		minIdx := i
+		for j := i + 1; j < len(arr); j++ {
+			if arr[j] < arr[minIdx] {
+				minIdx = j
+			}
+		}
+		arr[minIdx], arr[i] = arr[i], arr[minIdx]
+	}
+
+	return arr
+}
+
+func merge(arr []int, start int, mid int, end int) {
+	n1 := mid + 1 - start
+	n2 := end - mid
+
+	L := make([]int, n1)
+	R := make([]int, n2)
+
+	for i := 0; i < n1; i++ {
+		L[i] = arr[start+i]
+	}
+	for i := 0; i < n2; i++ {
+		R[i] = arr[mid+1+i]
+	}
+
+	i := 0
+	j := 0
+	k := start
+
+	for i < n1 && j < n2 {
+		if L[i] <= R[j] {
+			arr[k] = L[i]
+			i++
+		} else {
+			arr[k] = R[j]
+			j++
+		}
+		k++
+	}
+
+	for i < n1 {
+		arr[k] = L[i]
+		i++
+		k++
+	}
+
+	for j < n2 {
+		arr[k] = R[j]
+		j++
+		k++
+	}
+}
+
+func mergeSort(arr []int, start int, end int) {
+	if start >= end {
+		return
+	}
+
+	mid := (start + end) / 2
+	mergeSort(arr, start, mid)
+	mergeSort(arr, mid+1, end)
+	merge(arr, start, mid, end)
+}
+
+func bubbleSort(arr []int) []int {
+	for i := len(arr) - 1; i >= 0; i-- {
+		for j := 0; j < i; j++ {
+			if arr[j+1] < arr[j] {
+				arr[j+1], arr[j] = arr[j], arr[j+1]
+			}
+		}
+	}
+
+	return arr
+}
+
+func binarySearchRecursive(arr []int, key int, start int, end int) int {
+	if start > end {
+		return -1
+	}
+
+	mid := (start + end) / 2
+	if key > arr[mid] {
+		return binarySearchRecursive(arr, key, mid+1, end)
+	} else if key < arr[mid] {
+		return binarySearchRecursive(arr, key, start, mid-1)
+	} else {
+		return mid
+	}
+}
+
+func partition(arr []int, low int, high int) int {
+	pivot := arr[high]
+	i := low - 1
+
+	for j := low; j <= high-1; j++ {
+		if arr[j] < pivot {
+			i++
+			arr[i], arr[j] = arr[j], arr[i]
+		}
+	}
+
+	arr[i+1], arr[high] = arr[high], arr[i+1]
+
+	return i + 1
+}
+
+func quickSort(arr []int, low int, high int) {
+	if low < high {
+		pi := partition(arr, low, high)
+		quickSort(arr, low, pi-1)
+		quickSort(arr, pi+1, high)
+	}
 }
